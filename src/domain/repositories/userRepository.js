@@ -24,15 +24,15 @@ const authenticate = async (email, password) => {
     return new Promise((resolve, reject) => {
         pool.query('SELECT * FROM users WHERE email = ?', [email], async (error, results) => {
             if (error) {
-                return reject(error);
+                return reject(new Error('Error accessing the database'));
             }
             if (results.length === 0) {
-                return reject(new Error('Authentication failed: user not found.'));
+                return reject(new Error('Invalid credentials'));  // No se encontró el usuario
             }
             const user = results[0];
             const passwordMatch = await bcrypt.compare(password, user.password);
             if (!passwordMatch) {
-                return reject(new Error('Authentication failed: incorrect password.'));
+                return reject(new Error('Invalid credentials'));  // La contraseña no coincide
             }
             const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: TOKEN_EXPIRES_IN });
             resolve({ token });
@@ -40,7 +40,21 @@ const authenticate = async (email, password) => {
     });
 };
 
+
+const findByEmail = (email) => {
+    return new Promise((resolve, reject) => {
+        pool.query('SELECT * FROM users WHERE email = ?', [email], (error, results) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results.length > 0 ? results[0] : null);
+            }
+        });
+    });
+};
+
 module.exports = {
     create,
-    authenticate
+    authenticate,
+    findByEmail
 };

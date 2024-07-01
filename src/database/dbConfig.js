@@ -5,7 +5,7 @@ const pool = mysql.createPool({
     host: 'localhost',   
     user: 'root',         
     password: '',         
-    database: 'bd_bandconnect' 
+    database: 'bandconnect' 
 });
 
 const initialize = () => {
