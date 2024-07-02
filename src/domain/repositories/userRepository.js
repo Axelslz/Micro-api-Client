@@ -7,32 +7,31 @@ const TOKEN_EXPIRES_IN = '1h';
 
 const create = async (userData) => {
     const { fullName, email, password, phoneNumber, location } = userData;
-    const hashedPassword = await bcrypt.hash(password, 10);
 
     return new Promise((resolve, reject) => {
-        pool.query('INSERT INTO users (fullName, email, password, phoneNumber, location) VALUES (?, ?, ?, ?, ?)', [fullName, email, hashedPassword, phoneNumber, location], (error, results) => {
+        pool.query('INSERT INTO users (fullName, email, password, phoneNumber, location) VALUES (?, ?, ?, ?, ?)', 
+        [fullName, email, password, phoneNumber, location], 
+        (error, results) => {
             if (error) {
                 return reject(error);
             }
-            // Devolver el usuario con la id asignada por MySQL
-            resolve({ id: results.insertId, ...userData, password: undefined });  // Ocultar la contraseña al devolver el usuario
+            resolve({ id: results.insertId, ...userData, password: undefined });
         });
     });
 };
 
 const authenticate = async (email, password) => {
     return new Promise((resolve, reject) => {
-        pool.query('SELECT * FROM users WHERE email = ?', [email], async (error, results) => {
+        pool.query('SELECT * FROM users WHERE email = ?', [email], (error, results) => {
             if (error) {
                 return reject(new Error('Error accessing the database'));
             }
             if (results.length === 0) {
-                return reject(new Error('Invalid credentials'));  // No se encontró el usuario
+                return reject(new Error('Invalid credentials'));
             }
             const user = results[0];
-            const passwordMatch = await bcrypt.compare(password, user.password);
-            if (!passwordMatch) {
-                return reject(new Error('Invalid credentials'));  // La contraseña no coincide
+            if (password !== user.password) {
+                return reject(new Error('Invalid credentials'));
             }
             const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: TOKEN_EXPIRES_IN });
             resolve({ token });
@@ -44,7 +43,9 @@ const authenticate = async (email, password) => {
 const findByEmail = (email) => {
     return new Promise((resolve, reject) => {
         pool.query('SELECT * FROM users WHERE email = ?', [email], (error, results) => {
+            console.log(results);  // Ver qué está retornando la base de datos
             if (error) {
+                console.error("Error fetching user by email:", error);
                 reject(error);
             } else {
                 resolve(results.length > 0 ? results[0] : null);
@@ -52,6 +53,7 @@ const findByEmail = (email) => {
         });
     });
 };
+
 
 module.exports = {
     create,
