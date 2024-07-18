@@ -1,5 +1,5 @@
-const { execute: registerUser } = require('../../application/server/use-cases/userRegistration');
-const { execute: loginUser } = require('../../application/server/use-cases/userLogin');
+const { registerUser } = require('../../application/use-cases/userRegistration');
+const { loginUser } = require('../../application/use-cases/userLogin');
 const userRepository = require('../../domain/repositories/userRepository');
 
 const register = async (req, res) => {

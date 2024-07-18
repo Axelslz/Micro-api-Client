@@ -1,5 +1,6 @@
-const userRepository = require('../../../domain/repositories/userRepository');
+const userRepository = require('../../domain/repositories/userRepository');
 const bcrypt = require('bcryptjs');
+const { publishUserCreated } = require('../../infrastructure/rabbitmq/userPublisher');
 
 const execute = async (userData) => {
     // Verificar que el email no esté ya en uso
@@ -13,7 +14,13 @@ const execute = async (userData) => {
     userData.password = hashedPassword;
 
     // Crear el usuario en la base de datos
-    return userRepository.create(userData);
+    const user = await userRepository.create(userData);
+
+    // Publicar mensaje en RabbitMQ
+    await publishUserCreated(user);
+
+    return user;
 };
 
 module.exports = { execute };
+

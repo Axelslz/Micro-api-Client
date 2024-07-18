@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-const { pool } = require('../../database/dbConfig');  // Importando el pool desde dbConfig
+const { pool } = require('../../infrastructure/database/dbConfig');  // Importando el pool desde dbConfig
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key'; // Deberías almacenar esto en variables de entorno
 const TOKEN_EXPIRES_IN = '1h';
