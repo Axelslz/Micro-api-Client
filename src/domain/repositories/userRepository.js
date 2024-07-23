@@ -30,7 +30,7 @@ const authenticate = async (email, password) => {
                 return reject(new Error('Invalid credentials'));
             }
             const user = results[0];
-            if (password !== user.password) {
+            if (!bcrypt.compareSync(password, user.password)) {
                 return reject(new Error('Invalid credentials'));
             }
             const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: TOKEN_EXPIRES_IN });
@@ -38,7 +38,6 @@ const authenticate = async (email, password) => {
         });
     });
 };
-
 
 const findByEmail = (email) => {
     return new Promise((resolve, reject) => {
@@ -54,9 +53,83 @@ const findByEmail = (email) => {
     });
 };
 
+const findById = (id) => {
+    return new Promise((resolve, reject) => {
+        pool.query('SELECT * FROM users WHERE id = ?', [id], (error, results) => {
+            if (error) {
+                console.error("Error fetching user by id:", error);
+                reject(error);
+            } else {
+                resolve(results.length > 0 ? results[0] : null);
+            }
+        });
+    });
+};
+
+const updatePassword = (id, newPassword) => {
+    return new Promise((resolve, reject) => {
+        const hashedPassword = bcrypt.hashSync(newPassword, 10);
+        pool.query('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, id], (error, results) => {
+            if (error) {
+                console.error("Error updating password:", error);
+                reject(error);
+            } else {
+                resolve(results);
+            }
+        });
+    });
+};
+
+const storeRecoveryToken = (userId, token, expirationTime) => {
+    return new Promise((resolve, reject) => {
+        pool.query('UPDATE users SET recoveryToken = ?, tokenExpirationTime = ? WHERE id = ?', [token, expirationTime, userId], (error, results) => {
+            if (error) {
+                console.error("Error storing recovery token:", error);
+                reject(error);
+            } else {
+                resolve(results);
+            }
+        });
+    });
+};
+
+const getRecoveryToken = (userId) => {
+    return new Promise((resolve, reject) => {
+        pool.query('SELECT recoveryToken as token, tokenExpirationTime as expirationTime FROM users WHERE id = ?', [userId], (error, results) => {
+            if (error) {
+                console.error("Error fetching recovery token:", error);
+                reject(error);
+            } else {
+                resolve(results.length > 0 ? results[0] : null);
+            }
+        });
+    });
+};
+
+const removeRecoveryToken = (userId) => {
+    return new Promise((resolve, reject) => {
+        pool.query('UPDATE users SET recoveryToken = NULL, tokenExpirationTime = NULL WHERE id = ?', [userId], (error, results) => {
+            if (error) {
+                console.error("Error removing recovery token:", error);
+                reject(error);
+            } else {
+                resolve(results);
+            }
+        });
+    });
+};
 
 module.exports = {
     create,
     authenticate,
-    findByEmail
+    findByEmail,
+    findById,
+    updatePassword,
+    storeRecoveryToken,
+    getRecoveryToken,
+    removeRecoveryToken
 };
+
+
+
+

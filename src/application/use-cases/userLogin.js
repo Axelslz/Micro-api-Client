@@ -26,3 +26,4 @@ const execute = async ({ email, password }) => {
 };
 
 module.exports = { execute };
+

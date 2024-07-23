@@ -1,15 +1,13 @@
 const { getChannel } = require('./rabbitmqConfig');
 
 const startUserSubscriber = async () => {
-    const channel = getChannel();
-    const queue = 'user_created';
-    await channel.assertQueue(queue, { durable: true });
+    const channel = await getChannel();
+    const queueUser = 'user_queue'; // Ajusta esto al nombre real de tu cola de usuarios
 
-    channel.consume(queue, (msg) => {
+    await channel.consume(queueUser, async (msg) => {
         if (msg !== null) {
-            const user = JSON.parse(msg.content.toString());
-            console.log(`Mensaje recibido de la cola ${queue}:`, user);
-            // Procesar el mensaje aquí
+            // Procesa el mensaje de usuario aquí
+            console.log(`Mensaje recibido de la cola ${queueUser}:`, msg.content.toString());
             channel.ack(msg);
         }
     });
@@ -18,3 +16,8 @@ const startUserSubscriber = async () => {
 module.exports = {
     startUserSubscriber
 };
+
+
+
+
+

@@ -1,10 +1,15 @@
 {
   "dependencies": {
     "amqplib": "^0.10.4",
+    "bad-words": "^3.0.4",
     "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "googleapis": "^140.0.1",
     "jsonwebtoken": "^9.0.2",
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "natural": "^7.1.0",
+    "nodemailer": "^6.9.14"
   },
   "name": "micro-api-client",
   "description": "Microservicio del cliente en la app movil de BandConnect",
