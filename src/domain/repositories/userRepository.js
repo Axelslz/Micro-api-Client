@@ -55,16 +55,20 @@ const findByEmail = (email) => {
 
 const findById = (id) => {
     return new Promise((resolve, reject) => {
+        console.log(`Searching for user with id: ${id}`); // Log para verificar el id
         pool.query('SELECT * FROM users WHERE id = ?', [id], (error, results) => {
             if (error) {
                 console.error("Error fetching user by id:", error);
                 reject(error);
             } else {
+                console.log(`Database results: ${JSON.stringify(results)}`); // Log para verificar resultados
                 resolve(results.length > 0 ? results[0] : null);
             }
         });
     });
 };
+
+
 
 const updatePassword = (id, newPassword) => {
     return new Promise((resolve, reject) => {
@@ -119,6 +123,24 @@ const removeRecoveryToken = (userId) => {
     });
 };
 
+const update = (id, updates) => {
+    const fields = Object.keys(updates).map(key => `${key} = ?`).join(', ');
+    const values = Object.values(updates);
+    
+    return new Promise((resolve, reject) => {
+        console.log(`Updating user with id: ${id} and fields: ${fields}`); // Log para verificar la actualización
+        pool.query(`UPDATE users SET ${fields} WHERE id = ?`, [...values, id], (error, results) => {
+            if (error) {
+                console.error("Error updating user:", error);
+                reject(error);
+            } else {
+                resolve(results);
+            }
+        });
+    });
+};
+
+
 module.exports = {
     create,
     authenticate,
@@ -127,7 +149,8 @@ module.exports = {
     updatePassword,
     storeRecoveryToken,
     getRecoveryToken,
-    removeRecoveryToken
+    removeRecoveryToken,
+    update
 };
 
 

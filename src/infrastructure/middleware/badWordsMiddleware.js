@@ -1,4 +1,4 @@
-const { isCommentAppropriate } = require('./naiveBayesClassifier');
+const { isCommentAppropriate } = require('../classifiers/naiveBayesClassifier');
 
 const filterBadWords = (req, res, next) => {
     const { content } = req.body;

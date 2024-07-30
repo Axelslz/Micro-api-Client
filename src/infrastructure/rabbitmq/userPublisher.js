@@ -30,8 +30,18 @@ const publishPasswordRecovery = async (data) => {
     console.log(`Mensaje de recuperación de contraseña enviado al exchange ${exchange} con la clave de enrutamiento ${routingKey}:`, data);
 };
 
+const publishUserUpdated = async (user) => {
+    const channel = getChannel();
+    const exchange = 'bandct';
+    const queue = 'user_updated';
+    await channel.assertQueue(exchange, queue, { durable: true });
+    channel.sendToQueue(exchange, queue, Buffer.from(JSON.stringify(user)));
+    console.log(`Mensaje enviado a la cola ${queue}:`, user);
+};
+
 module.exports = {
     publishUserCreated,
     publishUserLogin,
-    publishPasswordRecovery
+    publishPasswordRecovery,
+    publishUserUpdated
 };
