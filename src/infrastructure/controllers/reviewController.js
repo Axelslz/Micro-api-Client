@@ -1,15 +1,12 @@
-const { getChannel } = require('../../infrastructure/rabbitmq/rabbitmqConfig');
-const { createReview } = require('../../domain/repositories/reviewRepository');
+const { publishReview } = require('../../infrastructure/rabbitmq/reviewPublisher');
 
 const addReview = async (req, res) => {
     try {
         const { userId, content } = req.body;
-        const containsProfanity = req.containsProfanity; // Obtener la información de la profanidad desde la solicitud
-        const channel = await getChannel();
-        const queueReview = 'user_review';
+        const containsProfanity = req.containsProfanity;
 
-        const message = JSON.stringify({ userId, content, containsProfanity });
-        await channel.sendToQueue(queueReview, Buffer.from(message), { persistent: true });
+        const reviewData = { userId, content, containsProfanity };
+        await publishReview(reviewData);
 
         if (containsProfanity) {
             res.status(400).json({ message: 'Comentario eliminado por lenguaje inapropiado o puede ser violento para el público.' });
@@ -24,6 +21,14 @@ const addReview = async (req, res) => {
 module.exports = {
     addReview
 };
+
+
+
+
+
+
+
+
 
 
 

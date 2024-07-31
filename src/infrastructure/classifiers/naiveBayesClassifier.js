@@ -1,17 +1,17 @@
 const natural = require('natural');
 const classifier = new natural.BayesClassifier();
 
-const trainClassifier = () => {
-    const profaneWords = [
-        'Verga', 'Verguita', 'Vrga', 'Vergostian', 'Vergui', 'Idiota', 'Idiotita', 'Idiotón', 
-        'Estúpido', 'Estupidito', 'Estupidote', 'Pendejo', 'Pendejito', 'Pedejote', 'Pendejisimo', 
-        'Pendejaso', 'Mierda', 'Mierdita', 'Mierdilla', 'Mierdota', 'Culero', 'Culerillo', 'Culerito', 
-        'Culerón', 'Imbecil', 'Sopenco', 'Sopencote', 'Totoreco', 'Totorequito', 'Mampo', 'Mampito', 
-        'Mampillo', 'Puto', 'Putón', 'Putito', 'Putisimo', 'Puñal', 'Puñalón', 'Maricón', 'Mariquita', 
-        'Marica', 'Zorra', 'Zorrita', 'Churpia', 'Piruja', 'Cabrón', 'Wey', 'Pinche', 'Chinga tu madre', 
-        'Perra', 'Perrita', 'Perrota','Mamon', 'Puta', 'Putita', 'Mierdototota', 'Putote', 'vende chispita'
-    ];
+const profaneWords = [
+    'verga', 'verguita', 'vrga', 'vergostian', 'vergui', 'idiota', 'idiotita', 'idiotón', 
+    'estúpido', 'estupidito', 'estupidote', 'pendejo', 'pendejito', 'pedejote', 'pendejisimo', 
+    'pendejaso', 'mierda', 'mierdita', 'mierdilla', 'mierdota', 'culero', 'culerillo', 'culerito', 
+    'culerón', 'imbecil', 'sopenco', 'sopencote', 'totoreco', 'totorequito', 'mampo', 'mampito', 
+    'mampillo', 'puto', 'putón', 'putito', 'putisimo', 'puñal', 'puñalón', 'maricón', 'mariquita', 
+    'marica', 'zorra', 'zorrita', 'churpia', 'piruja', 'cabrón', 'wey', 'pinche', 'chinga tu madre', 
+    'perra', 'perrita', 'perrota', 'mamon', 'puta', 'putita', 'mierdototota', 'putote', 'vende chispita'
+];
 
+const trainClassifier = () => {
     profaneWords.forEach(word => {
         classifier.addDocument(word, 'inapropiado');
     });
@@ -23,10 +23,19 @@ const trainClassifier = () => {
 trainClassifier();
 
 const isCommentAppropriate = (comment) => {
-    const classification = classifier.classify(comment);
-    return classification !== 'inapropiado';
+    const tokens = comment.split(/\s+/); // Dividir el comentario en palabras
+    for (let token of tokens) {
+        if (profaneWords.includes(token.toLowerCase())) {
+            console.log(`Palabra inapropiada detectada: "${token}"`);
+            return false;
+        }
+    }
+    console.log(`Comentario apropiado: "${comment}"`);
+    return true;
 };
 
 module.exports = {
     isCommentAppropriate
 };
+
+
